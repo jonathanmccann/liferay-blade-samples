@@ -105,8 +105,9 @@ public class JSPPortlet extends MVCPortlet {
 	}
 
 	@Reference
-	private volatile FooLocalService _fooLocalService;
-
+	public void setFooLocalService(FooLocalService fooLocalService) {
+		_fooLocalService = fooLocalService;
+	}
 
 	protected void deleteFoo(ActionRequest actionRequest) throws Exception {
 		long fooId = ParamUtil.getLong(actionRequest, "fooId");
@@ -160,4 +161,7 @@ public class JSPPortlet extends MVCPortlet {
 			getFooLocalService().updateFoo(foo);
 		}
 	}
+
+	private FooLocalService _fooLocalService;
+
 }

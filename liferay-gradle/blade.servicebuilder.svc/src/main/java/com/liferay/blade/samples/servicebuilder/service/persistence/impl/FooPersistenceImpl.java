@@ -2023,7 +2023,7 @@ public class FooPersistenceImpl extends BasePersistenceImpl<Foo>
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
-		clearUniqueFindersCache((FooModelImpl)foo);
+		clearUniqueFindersCache((FooModelImpl)foo, true);
 	}
 
 	@Override
@@ -2035,48 +2035,35 @@ public class FooPersistenceImpl extends BasePersistenceImpl<Foo>
 			entityCache.removeResult(FooModelImpl.ENTITY_CACHE_ENABLED,
 				FooImpl.class, foo.getPrimaryKey());
 
-			clearUniqueFindersCache((FooModelImpl)foo);
+			clearUniqueFindersCache((FooModelImpl)foo, true);
 		}
 	}
 
-	protected void cacheUniqueFindersCache(FooModelImpl fooModelImpl,
-		boolean isNew) {
-		if (isNew) {
-			Object[] args = new Object[] {
-					fooModelImpl.getUuid(), fooModelImpl.getGroupId()
-				};
-
-			finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
-				Long.valueOf(1));
-			finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
-				fooModelImpl);
-		}
-		else {
-			if ((fooModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_UUID_G.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						fooModelImpl.getUuid(), fooModelImpl.getGroupId()
-					};
-
-				finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
-					Long.valueOf(1));
-				finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
-					fooModelImpl);
-			}
-		}
-	}
-
-	protected void clearUniqueFindersCache(FooModelImpl fooModelImpl) {
+	protected void cacheUniqueFindersCache(FooModelImpl fooModelImpl) {
 		Object[] args = new Object[] {
 				fooModelImpl.getUuid(), fooModelImpl.getGroupId()
 			};
 
-		finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
-		finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
+		finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
+			Long.valueOf(1), false);
+		finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args, fooModelImpl,
+			false);
+	}
+
+	protected void clearUniqueFindersCache(FooModelImpl fooModelImpl,
+		boolean clearCurrent) {
+		if (clearCurrent) {
+			Object[] args = new Object[] {
+					fooModelImpl.getUuid(), fooModelImpl.getGroupId()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
+		}
 
 		if ((fooModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_UUID_G.getColumnBitmask()) != 0) {
-			args = new Object[] {
+			Object[] args = new Object[] {
 					fooModelImpl.getOriginalUuid(),
 					fooModelImpl.getOriginalGroupId()
 				};
@@ -2307,8 +2294,8 @@ public class FooPersistenceImpl extends BasePersistenceImpl<Foo>
 		entityCache.putResult(FooModelImpl.ENTITY_CACHE_ENABLED, FooImpl.class,
 			foo.getPrimaryKey(), foo, false);
 
-		clearUniqueFindersCache(fooModelImpl);
-		cacheUniqueFindersCache(fooModelImpl, isNew);
+		clearUniqueFindersCache(fooModelImpl, false);
+		cacheUniqueFindersCache(fooModelImpl);
 
 		foo.resetOriginalValues();
 
