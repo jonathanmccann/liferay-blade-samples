@@ -20,6 +20,7 @@ import com.liferay.blade.samples.servicebuilder.model.Foo;
 import com.liferay.blade.samples.servicebuilder.service.FooLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
@@ -137,6 +138,8 @@ public class JSPPortlet extends MVCPortlet {
 		Date field4 = PortalUtil.getDate(
 			dateMonth, dateDay, dateYear, dateHour, dateMinute,
 			PortalException.class);
+
+		UserLocalServiceUtil.fetchUser(System.currentTimeMillis());
 
 		if (fooId <= 0) {
 			Foo foo = getFooLocalService().createFoo(0);
